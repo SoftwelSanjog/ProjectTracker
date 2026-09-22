@@ -1,0 +1,17 @@
+@using ProjectTracker.Models
+<tr>
+    <td>@Project.Name</td>
+    <td>@Project.ClientName</td>
+    <td>@Project.Category</td>
+    <td class="text-end">@Project.DesignCost.ToString("N0")</td>
+    <td class="text-end">@Project.Received.ToString("N0")</td>
+    <td class="text-end">@Project.Balance.ToString("N0")</td>
+    <td>
+        <StatusBadge Status="@Project.Status" />
+    </td>
+</tr>
+@code {
+    [Parameter, EditorRequired]
+    public Project Project { get; set; } = null!;
+
+}

@@ -1,0 +1,16 @@
+@switch (Status)
+{
+    case "Paid":
+        <span class="badge bg-success">Paid</span>
+        break;
+    case "Partial":
+        <span class="badge bg-secondary">Partial</span>
+        break;
+    default:
+        <span class="badge bg-primary">Unpaid</Span>
+        break;
+}
+@code {
+    [Parameter, EditorRequired]
+    public string Status { get; set; } = "Unpaid";
+}

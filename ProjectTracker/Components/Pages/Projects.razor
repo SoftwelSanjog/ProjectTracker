@@ -1,4 +1,146 @@
 @page "/projects"
+@using ProjectTracker.Components.Shared
+@using ProjectTracker.Models
 <PageTitle>Projects</PageTitle>
 <h1>Projects</h1>
-<p>My projects, with client, district, category, cost and payments, will be listed here.</p>
+<EditForm Model="newProject" OnInvalidSubmit="HandleAddProject" class="row g-2 mb-4 border rounded p-3">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="text-danger" />
+    <div class="col-md-4">
+        <label class="form-label">Project Name</label>
+        <InputText class="form-control" @bind-Value="newProject.Name" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Client</label>
+        <InputSelect class="form-select" @bind-Value="newProject.ClientName">
+            <option value="">-- Select Client --</option>
+            @foreach (var client in clients)
+            {
+                <option value="@client.Name">@client.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Category</label>
+        <InputSelect class="form-select" @bind-Value="newProject.Category">
+            <option value="">-- Select Category --</option>
+            @foreach (var category in Categories)
+            {
+                <option value="@category">@category</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Fiscal Year</label>
+        <InputSelect class="form-select" @bind-Value="newProject.FiscalYear">
+            <option value="">-- Select Fiscal Year --</option>
+            @foreach (string fy in FiscalYear)
+            {
+                <option value="@fy">@fy</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Design Cost (NPR)</label>
+        <InputNumber @bind-Value="newProject.DesignCost" class="form-control" />
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Add Project</button>
+    </div>
+</EditForm>
+
+<div class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input class="form-control" placeholder="Search by name or client.." @bind="searchText" @bind:event="oninput" />
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" @bind="selectedCategory">
+            <option value="">All Categories</option>
+            @foreach (var category in Categories)
+            {
+                <option value="@category">@category</option>
+            }
+
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" @bind="selectedFiscalYear">
+            <option value="">All fiscal years</option>
+            @foreach (var fy in FiscalYear)
+            {
+                <option value="@fy">@fy</option>
+            }
+        </select>
+    </div>
+    @if (FilteredProjects.Count == 0)
+    {
+        <p class="text-muted">No projects match your filters.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Client</th>
+                        <th>Category</th>
+                        <th class="text-end">Cost</th>
+                        <th class="text-end">Received</th>
+                        <th class="text-end">Balance</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var project in FilteredProjects)
+                    {
+                        <ProjectRow @key="project.Id" Project="project" />
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+@code {
+    private string searchText = "";
+    private string selectedCategory = "";
+    private string selectedFiscalYear = "";
+    private List<string> Categories = new() { "Road", "Water Supply", "Irrigation", "River Training", "Other" };
+    private List<string> FiscalYear = new List<string>() { "2080/81", "2081/82", "2082/83", "2083/84" };
+    private List<Project> projects = new()
+    {
+        new() { Id = 1, Name = "Rural Road Upgrade - Ward 5", ClientName = "Everest Consult Pvt. Ltd.", Category = "Road",
+FiscalYear = "2082/83", DesignCost = 450_000, Received = 450_000 },
+        new() { Id = 2, Name = "Drinking Water Supply Scheme", ClientName = "Himal Engineering Services", Category = "Water Supply", FiscalYear = "2082/83", DesignCost = 380_000, Received = 150_000 },
+        new() { Id = 3, Name = "Irrigation Canal Extension", ClientName = "Everest Consult Pvt. Ltd.", Category =
+"Irrigation",FiscalYear = "2081/82", DesignCost = 600_000, Received = 0 },
+        new() { Id = 4, Name = "River Bank Protection Works", ClientName = "Sagarmatha Infra Consult", Category = "River Training", FiscalYear = "2082/83", DesignCost = 720_000, Received = 720_000 },
+        new() { Id = 5, Name = "Farm Road Feasibility Study", ClientName = "Himal Engineering Services", Category = "Road",
+FiscalYear = "2081/82", DesignCost = 250_000, Received = 100_000 },
+    };
+    private List<Project> FilteredProjects =>
+         projects
+             .Where(p => string.IsNullOrWhiteSpace(searchText)
+                 || p.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+                 || p.ClientName.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+             .Where(p => string.IsNullOrEmpty(selectedCategory) || p.Category == selectedCategory)
+             .Where(p => string.IsNullOrEmpty(selectedFiscalYear) || p.FiscalYear == selectedFiscalYear)
+             .ToList();
+
+    @code {
+        private List<Client> clients = new()
+{
+    new() { Id = 1, Name = "Everest Consult Pvt. Ltd." },
+    new() { Id = 2, Name = "Himal Engineering Services" },
+    new() { Id = 3, Name = "Sagarmatha Infra Consult" },
+};
+        private Project newProject = new();
+        private void HandleAddProject()
+        {
+            newProject.Id = projects.Count == 0 ? 1 : projects.Max(p => p.Id) + 1;
+            projects.Add(newProject);
+            newProject = new();
+        }
+    }
+}
