@@ -2,7 +2,8 @@
 <PageTitle>Dashboard</PageTitle>
 <h1>Dashboard</h1>
 <p class="text-muted">Sample data only. Fiscal Year 2082/83</p>
-<table class="table-responsive">
+<div class="table-responsive">
+    <table class="table align-middle">
     <thead>
         <tr>
             <th>Category</th>
@@ -13,13 +14,28 @@
         </tr>
     </thead>
     <tbody>
-       @*foreach(var row in rows)
+       @foreach(var row in rows)
         {
-        <td>
-        </td>
-        }*@
+            <tr>
+                <td>@row.Category</td>
+                <td class="text-end">@row.Projects</td>
+                <td class="text-end">@row.Cost.ToString("N0")</td>
+                 <td class="text-end">@row.Received.ToString("N0")</td>
+                  <td class="text-end">@((row.Cost-row.Received).ToString("N0"))</td>
+            </tr>
+
+        }
     </tbody>
 </table>
-@code{
+</div>
 
+@code{
+private record CategorySummary(string Category,int Projects, decimal Const, decimal Received);
+private readonly List<CategorySummary> rows =new()
+    {
+        new("Road", 3, 1_200_000m, 800_000m),
+        new("Water Supply", 2, 750_000m, 750_000m),
+        new("Irrigation", 4, 1_500_000m, 900_000m),
+        new("River Training", 1, 600_000m, 0m),
+    }; 
 }
