@@ -4,38 +4,47 @@
 <p class="text-muted">Sample data only. Fiscal Year 2082/83</p>
 <div class="table-responsive">
     <table class="table align-middle">
-    <thead>
-        <tr>
-            <th>Category</th>
-            <th class="text-end">Projects</th>
-            <th class="text-end">Design Cost (NPR)</th>
-            <th class="text-end">Received (NPR)</th>
-            <th class="text-end">Balance (NPR)</th>
-        </tr>
-    </thead>
-    <tbody>
-       @foreach(var row in rows)
-        {
+        <thead>
             <tr>
-                <td>@row.Category</td>
-                <td class="text-end">@row.Projects</td>
-                <td class="text-end">@row.Cost.ToString("N0")</td>
-                 <td class="text-end">@row.Received.ToString("N0")</td>
-                  <td class="text-end">@((row.Cost-row.Received).ToString("N0"))</td>
+                <th>Category</th>
+                <th class="text-end">Projects</th>
+                <th class="text-end">Design Cost (NPR)</th>
+                <th class="text-end">Received (NPR)</th>
+                <th class="text-end">Balance (NPR)</th>
             </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in rows)
+            {
+                <tr>
+                    <td>@row.Category</td>
+                    <td class="text-end">@row.Projects</td>
+                    <td class="text-end">@row.Cost.ToString("N0")</td>
+                    <td class="text-end">@row.Received.ToString("N0")</td>
+                    <td class="text-end">@((row.Cost - row.Received).ToString("N0"))</td>
+                </tr>
 
-        }
-    </tbody>
-</table>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Total</td>
+                <td class="text-end">@rows.Sum(r => r.Projects)</td>
+                <td class="text-end">@rows.Sum(r => r.Cost).ToString("N0")</td>
+                <td class="text-end">@rows.Sum(r => r.Received).ToString("N0")</td>
+                <td class="text-end">@((rows.Sum(r => r.Cost) - rows.Sum(r => r.Received)).ToString("N0"))</td>
+            </tr>
+        </tfoot>
+    </table>
 </div>
 
-@code{
-private record CategorySummary(string Category,int Projects, decimal Const, decimal Received);
-private readonly List<CategorySummary> rows =new()
+@code {
+    private record CategorySummary(string Category, int Projects, decimal Cost, decimal Received);
+    private readonly List<CategorySummary> rows = new()
     {
-        new("Road", 3, 1_200_000m, 800_000m),
-        new("Water Supply", 2, 750_000m, 750_000m),
-        new("Irrigation", 4, 1_500_000m, 900_000m),
-        new("River Training", 1, 600_000m, 0m),
-    }; 
+        new(Category: "Road", Projects: 3, Cost: 1200000, Received: 800000),
+        new(Category: "Water Supply", Projects: 2, Cost: 750000, Received: 750000),
+        new(Category: "Irrigation", Projects: 4, Cost: 1500000, Received: 900000),
+        new(Category: "River Training", Projects: 1, Cost: 600000, Received: 0m),
+    };
 }
